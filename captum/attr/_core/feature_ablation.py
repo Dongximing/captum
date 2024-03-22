@@ -257,12 +257,22 @@ class FeatureAblation(PerturbationAttribution):
         # Keeps track whether original input is a tuple or not before
         # converting it into a tuple.
         is_inputs_tuple = _is_tuple(inputs)
+        print("inputs------------ in the feature ablation ------>\n",inputs)
         inputs, baselines = _format_input_baseline(inputs, baselines)
+        print("inputs------------ the second line in the feature ablation ------>\n",inputs)
+        # baselines = (10,)
+        print("baselines------------ the second line in the feature ablation ------>\n",baselines)
+
+
+
+
         additional_forward_args = _format_additional_forward_args(
             additional_forward_args
         )
         num_examples = inputs[0].shape[0]
         feature_mask = _format_feature_mask(feature_mask, inputs)
+        print("additional_forward_args------------ the second line in the feature ablation ------>\n", additional_forward_args)
+
 
         assert (
             isinstance(perturbations_per_eval, int) and perturbations_per_eval >= 1
@@ -286,9 +296,12 @@ class FeatureAblation(PerturbationAttribution):
 
             # Computes initial evaluation with all features, which is compared
             # to each ablated result.
+            print("inputs-----------------298",inputs)
+            print("target------------------299",target)
             initial_eval = self._strict_run_forward(
                 self.forward_func, inputs, target, additional_forward_args
             )
+            print("initial_eval---------------->\n",initial_eval)
 
             if show_progress:
                 attr_progress.update()
@@ -299,6 +312,7 @@ class FeatureAblation(PerturbationAttribution):
             # flatten eval outputs into 1D (n_outputs)
             # add the leading dim for n_feature_perturbed
             flattened_initial_eval = initial_eval.reshape(1, -1)
+            print("flattened_initial_eval------------------>",flattened_initial_eval)
 
             # Initialize attribution totals and counts
             attrib_type = cast(dtype, flattened_initial_eval.dtype)
@@ -348,13 +362,15 @@ class FeatureAblation(PerturbationAttribution):
                     #   agg mode: (*initial_eval.shape)
                     #   non-agg mode:
                     #     (feature_perturbed * batch_size, *initial_eval.shape[1:])
+                    print("current_inputs",current_inputs)
+                    print("current_target",current_target)
                     modified_eval = self._strict_run_forward(
                         self.forward_func,
                         current_inputs,
                         current_target,
                         current_add_args,
                     )
-
+                    print("modified_eval------------->",modified_eval)
                     if show_progress:
                         attr_progress.update()
 
@@ -394,7 +410,10 @@ class FeatureAblation(PerturbationAttribution):
                     # flatten each feature's eval outputs into 1D of (n_outputs)
                     modified_eval = modified_eval.reshape(-1, n_outputs)
                     # eval_diff in shape (n_feature_perturbed, n_outputs)
+                    print("413-------------modified_eval-------------->",modified_eval)
                     eval_diff = flattened_initial_eval - modified_eval
+
+                    print('eval_diff----------------->',eval_diff)
 
                     # append the shape of one input example
                     # to make it broadcastable to mask
@@ -457,8 +476,10 @@ class FeatureAblation(PerturbationAttribution):
         num_examples = inputs[0].shape[0]
         perturbations_per_eval = min(perturbations_per_eval, num_features)
         baseline = baselines[i] if isinstance(baselines, tuple) else baselines
+        print("baseline    in 472",baseline)
         if isinstance(baseline, torch.Tensor):
             baseline = baseline.reshape((1,) + baseline.shape)
+        print("baseline    in 473", baseline)
 
         if perturbations_per_eval > 1:
             # Repeat features and additional args for batch size.
@@ -530,6 +551,7 @@ class FeatureAblation(PerturbationAttribution):
             current_features[i] = ablated_features.reshape(
                 (-1,) + ablated_features.shape[2:]
             )
+            print(current_features[i])
             yield tuple(
                 current_features
             ), current_additional_args, current_target, current_mask
@@ -556,6 +578,7 @@ class FeatureAblation(PerturbationAttribution):
         being 1. This mask contains 1s in locations which have been ablated (and
         thus counted towards ablations for that feature) and 0s otherwise.
         """
+        print("baseline in 573",baseline)
         current_mask = torch.stack(
             [input_mask == j for j in range(start_feature, end_feature)], dim=0
         ).long()
@@ -563,6 +586,8 @@ class FeatureAblation(PerturbationAttribution):
         ablated_tensor = (
             expanded_input * (1 - current_mask).to(expanded_input.dtype)
         ) + (baseline * current_mask.to(expanded_input.dtype))
+        print("ablated_tensor",ablated_tensor)
+        print("current_mask",current_mask)
         return ablated_tensor, current_mask
 
     def _get_feature_range_and_mask(self, input, input_mask, **kwargs):
@@ -600,6 +625,8 @@ class FeatureAblation(PerturbationAttribution):
         Remove after the strict logic is supported by all attr classes
         """
         forward_output = _run_forward(*args, **kwargs)
+
+        print("forward_output------------------>",forward_output)
         if isinstance(forward_output, Tensor):
             return forward_output
 

@@ -20,7 +20,7 @@ from captum.attr._utils.interpretable_input import (
 from torch import nn, Tensor
 
 
-DEFAULT_GEN_ARGS = {"max_new_tokens": 25, "do_sample": False}
+DEFAULT_GEN_ARGS = {"max_new_tokens": 2, "do_sample": False}
 
 
 class LLMAttributionResult:
@@ -235,10 +235,13 @@ class LLMAttribution(Attribution):
         use_cached_outputs=False,
         _inspect_forward=None,
     ):
+        print("""perturbed_tensor----->""",perturbed_tensor)
         perturbed_input = self._format_model_input(inp.to_model_input(perturbed_tensor))
         init_model_inp = perturbed_input
 
+
         model_inp = init_model_inp
+        print("perturbed_input--------------------------240 _forward_func",model_inp)
         model_kwargs = {"attention_mask": torch.tensor([[1] * model_inp.shape[1]])}
 
         log_prob_list = []
@@ -265,8 +268,9 @@ class LLMAttribution(Attribution):
             model_inp = torch.cat(
                 (model_inp, torch.tensor([[target_token]]).to(self.device)), dim=1
             )
-
+        print("log_prob_list",log_prob_list)
         total_log_prob = sum(log_prob_list)
+        print("total_log_prob",total_log_prob)
         # 1st element is the total prob, rest are the target tokens
         # add a leading dim for batch even we only support single instance for now
         if self.include_per_token_attr:
@@ -336,7 +340,7 @@ class LLMAttribution(Attribution):
         assert isinstance(
             inp, self.SUPPORTED_INPUTS
         ), f"LLMAttribution does not support input type {type(inp)}"
-
+       # print("-----------------if can be modtify -----------------------------------------")
         if target is None:
             # generate when None
             assert hasattr(self.model, "generate") and callable(self.model.generate), (
@@ -348,6 +352,7 @@ class LLMAttribution(Attribution):
                 gen_args = DEFAULT_GEN_ARGS
 
             model_inp = self._format_model_input(inp.to_model_input())
+
             output_tokens = self.model.generate(model_inp, **gen_args)
             target_tokens = output_tokens[0][model_inp.size(1) :]
         else:
@@ -371,6 +376,7 @@ class LLMAttribution(Attribution):
 
         for _ in range(num_trials):
             attr_input = inp.to_tensor().to(self.device)
+            print("attr_input------->\n",attr_input)
 
             cur_attr = self.attr_method.attribute(
                 attr_input,
@@ -387,12 +393,14 @@ class LLMAttribution(Attribution):
             # FA will flatten output shape internally (n_output_token, n_itp_features)
             # Shapley will keep output shape (batch, n_output_token, n_input_features)
             cur_attr = cur_attr.reshape(attr.shape)
+            print("cur_attr------------------>\n",cur_attr)
 
             attr += cur_attr
 
         attr = attr / num_trials
 
         attr = inp.format_attr(attr)
+        print("attr---------->\n",attr)
 
         return LLMAttributionResult(
             attr[0],
