@@ -52,7 +52,7 @@ src="/_sphinx/documentation_options.js"></script>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span><span class="p">,</span> <span class="n">Tensor</span>
 
 
-<span class="n">DEFAULT_GEN_ARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"max_new_tokens"</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">"do_sample"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<span class="n">DEFAULT_GEN_ARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"max_new_tokens"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"do_sample"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="LLMAttributionResult">
@@ -278,10 +278,13 @@ src="/_sphinx/documentation_options.js"></script>
         <span class="n">use_cached_outputs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">_inspect_forward</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"""perturbed_tensor-----&gt;"""</span><span class="p">,</span><span class="n">perturbed_tensor</span><span class="p">)</span>
         <span class="n">perturbed_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_model_input</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">to_model_input</span><span class="p">(</span><span class="n">perturbed_tensor</span><span class="p">))</span>
         <span class="n">init_model_inp</span> <span class="o">=</span> <span class="n">perturbed_input</span>
 
+
         <span class="n">model_inp</span> <span class="o">=</span> <span class="n">init_model_inp</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"perturbed_input--------------------------240 _forward_func"</span><span class="p">,</span><span class="n">model_inp</span><span class="p">)</span>
         <span class="n">model_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"attention_mask"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">model_inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])}</span>
 
         <span class="n">log_prob_list</span> <span class="o">=</span> <span class="p">[]</span>
@@ -308,8 +311,9 @@ src="/_sphinx/documentation_options.js"></script>
             <span class="n">model_inp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">model_inp</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="n">target_token</span><span class="p">]])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">)</span>
-
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"log_prob_list"</span><span class="p">,</span><span class="n">log_prob_list</span><span class="p">)</span>
         <span class="n">total_log_prob</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">log_prob_list</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"total_log_prob"</span><span class="p">,</span><span class="n">total_log_prob</span><span class="p">)</span>
         <span class="c1"># 1st element is the total prob, rest are the target tokens</span>
         <span class="c1"># add a leading dim for batch even we only support single instance for now</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_per_token_attr</span><span class="p">:</span>
@@ -381,7 +385,7 @@ src="/_sphinx/documentation_options.js"></script>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
             <span class="n">inp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">SUPPORTED_INPUTS</span>
         <span class="p">),</span> <span class="sa">f</span><span class="s2">"LLMAttribution does not support input type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-
+       <span class="c1"># print("-----------------if can be modtify -----------------------------------------")</span>
         <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># generate when None</span>
             <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="s2">"generate"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">),</span> <span class="p">(</span>
@@ -393,6 +397,7 @@ src="/_sphinx/documentation_options.js"></script>
                 <span class="n">gen_args</span> <span class="o">=</span> <span class="n">DEFAULT_GEN_ARGS</span>
 
             <span class="n">model_inp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_model_input</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">to_model_input</span><span class="p">())</span>
+
             <span class="n">output_tokens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">model_inp</span><span class="p">,</span> <span class="o">**</span><span class="n">gen_args</span><span class="p">)</span>
             <span class="n">target_tokens</span> <span class="o">=</span> <span class="n">output_tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">model_inp</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">:]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -416,6 +421,7 @@ src="/_sphinx/documentation_options.js"></script>
 
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_trials</span><span class="p">):</span>
             <span class="n">attr_input</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"attr_input-------&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span><span class="n">attr_input</span><span class="p">)</span>
 
             <span class="n">cur_attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attr_method</span><span class="o">.</span><span class="n">attribute</span><span class="p">(</span>
                 <span class="n">attr_input</span><span class="p">,</span>
@@ -432,12 +438,14 @@ src="/_sphinx/documentation_options.js"></script>
             <span class="c1"># FA will flatten output shape internally (n_output_token, n_itp_features)</span>
             <span class="c1"># Shapley will keep output shape (batch, n_output_token, n_input_features)</span>
             <span class="n">cur_attr</span> <span class="o">=</span> <span class="n">cur_attr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"cur_attr------------------&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span><span class="n">cur_attr</span><span class="p">)</span>
 
             <span class="n">attr</span> <span class="o">+=</span> <span class="n">cur_attr</span>
 
         <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span> <span class="o">/</span> <span class="n">num_trials</span>
 
         <span class="n">attr</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">format_attr</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"attr----------&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span><span class="n">attr</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">LLMAttributionResult</span><span class="p">(</span>
             <span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
