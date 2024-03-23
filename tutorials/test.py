@@ -47,8 +47,9 @@ model_input = tokenizer(eval_prompt, return_tensors="pt")
 print(model_input["input_ids"])
 
 # fa = FeatureAblation(model)
-
-ig = LayerIntegratedGradients()
+emb_layer = model.get_submodule("model.embed_tokens")
+ig = LayerIntegratedGradients(model, emb_layer)
+#ig = LayerIntegratedGradients()
 llm_attr = LLMAttribution(ig, tokenizer)
 
 inp = TextTokenInput(
