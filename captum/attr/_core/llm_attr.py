@@ -20,7 +20,7 @@ from captum.attr._utils.interpretable_input import (
 from torch import nn, Tensor
 
 
-DEFAULT_GEN_ARGS = {"max_new_tokens": 2, "do_sample": False}
+DEFAULT_GEN_ARGS = {"max_new_tokens": 10, "do_sample": False}
 
 
 class LLMAttributionResult:
