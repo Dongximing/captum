@@ -643,5 +643,5 @@ class LLMGradientAttribution(Attribution):
             attr,  # shape(n_output_token, n_input_features)
             inp.values,
             self.tokenizer.convert_ids_to_tokens(target_tokens),
-            self.tokenizer.decode(output_tokens[0].detach().cpu().numpy(),skip_special_tokens =True)
+            self.tokenizer.decode(output_tokens[0][:model_inp.size(1)].detach().cpu().numpy(),skip_special_tokens =True)
         )
