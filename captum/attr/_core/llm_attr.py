@@ -93,15 +93,16 @@ class LLMAttributionResult:
         # Create colorbar
         cbar = ax.figure.colorbar(im, ax=ax)
         cbar.ax.set_ylabel("Token Attribuiton", rotation=-90, va="bottom")
-        result_dict = {key: value for key, value in zip(self.input_tokens, list(data))}
+        #result_dict = {key: value for key, value in zip(self.input_tokens, list(data))}
+        print()
         index = 0
         combined_contributions = []
         for id, word in enumerate(words):
 
-            while index < len(result_dict):
-                token = result_dict[index].get('token')
-                total_value += float(result_dict[index].get('value'))
-                real_token += result_dict[index].get('token')
+            while index < len(data):
+
+                total_value += float(data[index])
+                real_token += self.input_tokens[:,index]
                 index += 1
                 if len(real_token) == len(word):
                     combined_contributions.append(
