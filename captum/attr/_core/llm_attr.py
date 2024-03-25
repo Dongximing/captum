@@ -96,6 +96,7 @@ class LLMAttributionResult:
         #result_dict = {key: value for key, value in zip(self.input_tokens, list(data))}
         print("----------------------data123------------------------------------")
         print(data)
+        data = data[0]
         print(self.input_tokens)
         index = 0
         combined_contributions = []
@@ -104,7 +105,7 @@ class LLMAttributionResult:
             while index < len(data):
 
                 total_value += float(data[index])
-                real_token += self.input_tokens[:,index]
+                real_token += self.input_tokens[index]
                 index += 1
                 if len(real_token) == len(word):
                     combined_contributions.append(
