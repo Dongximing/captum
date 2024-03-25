@@ -61,18 +61,18 @@ class LLMAttributionResult:
         # maximum absolute attribution value
         # used as the boundary of normalization
         # always keep 0 as the mid point to differentiate pos/neg attr
-        #max_abs_attr_val = token_attr.abs().max().item()
+        max_abs_attr_val = token_attr.abs().max().item()
 
         fig, ax = plt.subplots()
 
         # Plot the heatmap
         data = token_attr.numpy()
-        data = np.abs(data)
-
-        data = data / np.sum(data, axis=1, keepdims=True)
-        max_abs_attr_val = np.abs(data).max().item()
-
-        print("token_attr---------------------->",data)
+        # data = np.abs(data)
+        #
+        # data = data / np.sum(data, axis=1, keepdims=True)
+        # max_abs_attr_val = np.abs(data).max().item()
+        #
+        # print("token_attr---------------------->",data)
 
         fig.set_size_inches(
             max(data.shape[1] * 1.3, 6.4), max(data.shape[0] / 2.5, 4.8)
