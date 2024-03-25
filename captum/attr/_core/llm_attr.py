@@ -107,6 +107,9 @@ class LLMAttributionResult:
             while index < len(data):
 
                 total_value += float(data[index])
+                if self.input_tokens[index].startswith('▁'):
+                    self.input_tokens[index] = self.input_tokens[index].replace('▁','')
+
                 real_token += self.input_tokens[index]
                 index += 1
                 if len(real_token) == len(word):
