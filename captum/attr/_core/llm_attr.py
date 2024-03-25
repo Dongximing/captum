@@ -20,7 +20,7 @@ from captum.attr._utils.interpretable_input import (
 from torch import nn, Tensor
 
 
-DEFAULT_GEN_ARGS = {"max_new_tokens": 10, "do_sample": False}
+DEFAULT_GEN_ARGS = {"max_new_tokens": 2, "do_sample": False}
 
 
 class LLMAttributionResult:
@@ -67,6 +67,10 @@ class LLMAttributionResult:
 
         # Plot the heatmap
         data = token_attr.numpy()
+        data = np.abs(data)
+        data = data / np.sum(data, axis=1, keepdims=True)
+
+        print("token_attr---------------------->",data)
 
         fig.set_size_inches(
             max(data.shape[1] * 1.3, 6.4), max(data.shape[0] / 2.5, 4.8)
@@ -468,7 +472,9 @@ class LLMGradientAttribution(Attribution):
         target_tokens: Tensor,  # 1D tensor of target token ids
         cur_target_idx: int,  # current target index
     ):
+        print("perturbed_input---------------- in 471 llm_attr>", perturbed_tensor.size())
         perturbed_input = self._format_model_input(inp.to_model_input(perturbed_tensor))
+        print("perturbed_input---------------- in 472 llm_attr>",perturbed_input)
 
         if cur_target_idx:
             # the input batch size can be expanded by attr method

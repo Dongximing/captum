@@ -369,6 +369,7 @@ class IntegratedGradients(GradientAttribution):
             )
             for (scaled_grad, grad) in zip(scaled_grads, grads)
         )
+        print("total_grads---------->",total_grads)
 
         # computes attribution for each tensor in input tuple
         # attributions has the same dimensionality as inputs

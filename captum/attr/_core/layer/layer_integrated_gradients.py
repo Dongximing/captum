@@ -350,9 +350,12 @@ class LayerIntegratedGradients(LayerAttribution, GradientAttribution):
             >>> attribution = lig.attribute(input, target=3)
         """
         inps, baselines = _format_input_baseline(inputs, baselines)
+        print("layer integrated gradient in 353------------>\n",inps)
+        print("layer integrated gradient in 354------------>\n",baselines)
         _validate_input(inps, baselines, n_steps, method)
 
         baselines = _tensorize_baseline(inps, baselines)
+        print("layer integrated gradient in 358------------>\n",baselines)
         additional_forward_args = _format_additional_forward_args(
             additional_forward_args
         )
@@ -373,6 +376,10 @@ class LayerIntegratedGradients(LayerAttribution, GradientAttribution):
             additional_forward_args=additional_forward_args,
             attribute_to_layer_input=attribute_to_layer_input,
         )
+        print("inputs_layer-------------->379\n")
+        for tensor in inputs_layer:
+            print(tensor)
+        # get input embedding
 
         # if we have one output
         if not isinstance(self.layer, list):
@@ -392,7 +399,10 @@ class LayerIntegratedGradients(LayerAttribution, GradientAttribution):
             additional_forward_args=additional_forward_args,
             attribute_to_layer_input=attribute_to_layer_input,
         )
+        print("baselines_layer--------------------->\n",baselines_layer)
+        # get the baseline embedding
         baselines_layer = flatten_tuple(baselines_layer)
+        print("baselines_layer   size ----------------------> ",baselines_layer[0].size())
 
         # inputs -> these inputs are scaled
         def gradient_func(
@@ -449,6 +459,7 @@ class LayerIntegratedGradients(LayerAttribution, GradientAttribution):
                         # TODO:
                         # Allow multiple attribute_to_layer_input flags for
                         # each layer, i.e. attribute_to_layer_input[layer_idx]
+                        print("attribute_to_layer_input------------------------->",attribute_to_layer_input)
                         if attribute_to_layer_input:
                             hook = layer.register_forward_pre_hook(
                                 functools.partial(
@@ -501,6 +512,8 @@ class LayerIntegratedGradients(LayerAttribution, GradientAttribution):
             internal_batch_size=internal_batch_size,
             return_convergence_delta=False,
         )
+        print("attributions----------------------->\n",attributions[0])
+        print("attributions----------------------->\n", attributions[0].size())
 
         # handle multiple outputs
         output: List[Tuple[Tensor, ...]] = [
@@ -511,6 +524,8 @@ class LayerIntegratedGradients(LayerAttribution, GradientAttribution):
             )
             for i in range(len(num_outputs))
         ]
+        print("layer integrated gradients 525\n", output[0][0])
+        print("layer integrated gradients 525\n", output[0][0].size())
 
         if return_convergence_delta:
             start_point, end_point = baselines, inps
