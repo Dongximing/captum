@@ -39,18 +39,34 @@ def create_bnb_config():
     )
 
     return bnb_config
-eval_prompt = """the sentiment of 'I am happy' is positive or negative: the answer is"""
-model = AutoModelForCausalLM.from_pretrained('meta-llama/Llama-2-13b-chat-hf')
-tokenizer = AutoTokenizer.from_pretrained('meta-llama/Llama-2-13b-chat-hf')
+eval_prompt = """Heathrow airpot is located in the city of"""
+model = AutoModelForCausalLM.from_pretrained('openai-community/gpt2')
+#print(model)
+tokenizer = AutoTokenizer.from_pretrained('openai-community/gpt2')
+embeddings_output = []
+
+# 定义一个hook函数
+def get_embeddings(module, input, output):
+    embeddings_output.append(output)
+
+# 注册hook到embedding层
+embedding_layer = model.get_input_embeddings()
+handle = embedding_layer.register_forward_hook(get_embeddings)
 
 model_input = tokenizer(eval_prompt, return_tensors="pt")
 print(model_input["input_ids"])
-
+with torch.no_grad():
+    output_ids = model.generate(model_input["input_ids"], max_new_tokens=2)[0]
+    response = tokenizer.decode(output_ids, skip_special_tokens=True)
+    handle.remove()
+    print(response)
+print(embeddings_output)
+print("------------------------------------------------")
 # fa = FeatureAblation(model)
-emb_layer = model.get_submodule("model.embed_tokens")
+emb_layer = model.get_submodule("transformer.wte")
 ig = LayerIntegratedGradients(model, emb_layer)
 #ig = LayerIntegratedGradients()
-llm_attr = LLMAttribution(ig, tokenizer)
+llm_attr = LLMGradientAttribution(ig, tokenizer)
 
 inp = TextTokenInput(
     eval_prompt,
