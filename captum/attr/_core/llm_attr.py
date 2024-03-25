@@ -115,6 +115,10 @@ class LLMAttributionResult:
                     total_value = 0
                     real_token = ''
                     break
+        print("combined_contributions-------------->",combined_contributions)
+        print("words ----------------------------->",words)
+        print("combined_contributions-------------->", len(combined_contributions))
+        print("words ----------------------------->", len(words))
 
         # Show all ticks and label them with the respective list entries.
         ax.set_xticks(np.arange(len(combined_contributions)), labels=words)
