@@ -135,7 +135,7 @@ class LLMAttributionResult:
 
         # Loop over the data and create a `Text` for each "pixel".
         # Change the text's color depending on the data.
-        combined_contributions = [combined_contributions]
+        combined_contributions =  np.array([combined_contributions])
         for i in range(combined_contributions.shape[0]):
             for j in range(combined_contributions.shape[1]):
                 val = combined_contributions[i, j]
