@@ -100,6 +100,8 @@ class LLMAttributionResult:
         print(self.input_tokens)
         index = 0
         combined_contributions = []
+        total_value = 0
+        real_token = ''
         for id, word in enumerate(words):
 
             while index < len(data):
