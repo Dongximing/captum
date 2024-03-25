@@ -70,7 +70,7 @@ class LLMAttributionResult:
         data = np.abs(data)
 
         data = data / np.sum(data, axis=1, keepdims=True)
-        max_abs_attr_val = data.abs().max().item()
+        max_abs_attr_val = np.abs(data).max().item()
 
         print("token_attr---------------------->",data)
 
