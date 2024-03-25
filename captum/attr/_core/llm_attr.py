@@ -18,6 +18,7 @@ from captum.attr._utils.interpretable_input import (
     TextTokenInput,
 )
 from torch import nn, Tensor
+import nltk
 
 
 DEFAULT_GEN_ARGS = {"max_new_tokens": 1, "do_sample": False}
@@ -36,11 +37,13 @@ class LLMAttributionResult:
         token_attr: Union[Tensor, None],
         input_tokens: List[str],
         output_tokens: List[str],
+        input: str
     ):
         self.seq_attr = seq_attr
         self.token_attr = token_attr
         self.input_tokens = input_tokens
         self.output_tokens = output_tokens
+        self.model_input = input
 
     @property
     def seq_attr_dict(self):
@@ -67,12 +70,14 @@ class LLMAttributionResult:
 
         # Plot the heatmap
         data = token_attr.numpy()
-        # data = np.abs(data)
+        data = np.abs(data)
+
         #
         # data = data / np.sum(data, axis=1, keepdims=True)
         # max_abs_attr_val = np.abs(data).max().item()
         #
         # print("token_attr---------------------->",data)
+        words = [w for w in nltk.word_tokenize(self.model_input)]
 
         fig.set_size_inches(
             max(data.shape[1] * 1.3, 6.4), max(data.shape[0] / 2.5, 4.8)
@@ -88,9 +93,25 @@ class LLMAttributionResult:
         # Create colorbar
         cbar = ax.figure.colorbar(im, ax=ax)
         cbar.ax.set_ylabel("Token Attribuiton", rotation=-90, va="bottom")
+        result_dict = {key: value for key, value in zip(self.input_tokens, list(data))}
+        index = 0
+        combined_contributions = []
+        for id, word in enumerate(words):
+
+            while index < len(result_dict):
+                token = result_dict[index].get('token')
+                total_value += float(result_dict[index].get('value'))
+                real_token += result_dict[index].get('token')
+                index += 1
+                if len(real_token) == len(word):
+                    combined_contributions.append(
+                        total_value)
+                    total_value = 0
+                    real_token = ''
+                    break
 
         # Show all ticks and label them with the respective list entries.
-        ax.set_xticks(np.arange(data.shape[1]), labels=self.input_tokens)
+        ax.set_xticks(np.arange(data.shape[1]), labels=words)
         ax.set_yticks(np.arange(data.shape[0]), labels=self.output_tokens)
 
         # Let the horizontal axes labeling appear on top.
@@ -609,4 +630,5 @@ class LLMGradientAttribution(Attribution):
             attr,  # shape(n_output_token, n_input_features)
             inp.values,
             self.tokenizer.convert_ids_to_tokens(target_tokens),
+            self.tokenizer.decode(output_tokens.detach().cpu().numpy(),skip_special_tokens =True)
         )
