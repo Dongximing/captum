@@ -68,6 +68,7 @@ class LLMAttributionResult:
         # Plot the heatmap
         data = token_attr.numpy()
         data = np.abs(data)
+        max_abs_attr_val = data.abs().max().item()
         data = data / np.sum(data, axis=1, keepdims=True)
 
         print("token_attr---------------------->",data)
