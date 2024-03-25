@@ -94,7 +94,9 @@ class LLMAttributionResult:
         cbar = ax.figure.colorbar(im, ax=ax)
         cbar.ax.set_ylabel("Token Attribuiton", rotation=-90, va="bottom")
         #result_dict = {key: value for key, value in zip(self.input_tokens, list(data))}
+        print("----------------------data123------------------------------------")
         print(data)
+        print(self.input_tokens)
         index = 0
         combined_contributions = []
         for id, word in enumerate(words):
