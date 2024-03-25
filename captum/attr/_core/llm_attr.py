@@ -135,9 +135,10 @@ class LLMAttributionResult:
 
         # Loop over the data and create a `Text` for each "pixel".
         # Change the text's color depending on the data.
-        for i in range(data.shape[0]):
-            for j in range(data.shape[1]):
-                val = data[i, j]
+        combined_contributions = [combined_contributions]
+        for i in range(combined_contributions.shape[0]):
+            for j in range(combined_contributions.shape[1]):
+                val = combined_contributions[i, j]
                 color = "black" if 0.2 < im.norm(val) < 0.8 else "white"
                 im.axes.text(
                     j,
