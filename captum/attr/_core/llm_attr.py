@@ -125,7 +125,7 @@ class LLMAttributionResult:
 
         # Show all ticks and label them with the respective list entries.
         ax.set_xticks(np.arange(len(combined_contributions)), labels=words)
-        ax.set_yticks(np.arange(0), labels=self.output_tokens)
+        ax.set_yticks(np.arange(1), labels=self.output_tokens)
 
         # Let the horizontal axes labeling appear on top.
         ax.tick_params(top=True, bottom=False, labeltop=True, labelbottom=False)
